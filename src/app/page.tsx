@@ -28,7 +28,7 @@ export default function Home() {
     let linkPreview: any = {}
     
     try {
-      const response = await fetch(`http://api.linkpreview.net/?key=${API_KEY_TO_USE}&q=${encodeURI(link)}`);
+      const response = await fetch(`https://api.linkpreview.net/?key=${API_KEY_TO_USE}&q=${encodeURI(link)}`);
       linkPreview = await response.json();
     } catch (error) {
       console.error(error)
