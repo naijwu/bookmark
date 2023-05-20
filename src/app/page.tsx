@@ -40,9 +40,7 @@ export default function Home() {
     setLinks(updatedLinks)
     
     // save links data
-    if (typeof window != undefined) {
-      window.sessionStorage.setItem('bookmarks', JSON.stringify(updatedLinks))
-    }
+    window.sessionStorage.setItem('bookmarks', JSON.stringify(updatedLinks))
 
     console.log(updatedLinks)
     setLoading(false)
