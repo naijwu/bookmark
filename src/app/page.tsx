@@ -1,45 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './page.module.css'
 import LinkField from '@/components/LinkField/LinkField'
 import LinkItem, { LinkItemProps } from '@/components/LinkItem/LinkItem';
-
-const EXAMPLE_LINKS = [
-  {
-    favicon: '',
-    title: 'Diagram',
-    url: 'diagram.so',
-    dateAdded: '18 May',
-  },
-  {
-    favicon: '',
-    title: `Jae wu's blog`,
-    url: 'jaewuchun.com',
-    dateAdded: '18 May',
-  },
-  {
-    favicon: '',
-    title: `Mainstream on Twitter`,
-    url: 'twitter.com',
-    dateAdded: '18 May',
-  }
-]
 
 const API_KEY_TO_USE = process.env.NEXT_PUBLIC_LINK_API
 
 export default function Home() {
 
-  const getSessionStorageLinks = () => {
+  const [loading, setLoading] = useState<boolean>(false)
+  const [links, setLinks] = useState<LinkItemProps[]>([])
+
+  useEffect(() => {
     if (typeof window !== undefined) {
       const bookmarks = window?.sessionStorage.getItem('bookmarks')
-      return bookmarks ? JSON.parse(bookmarks) : [] 
+      setLinks(bookmarks ? JSON.parse(bookmarks) : [])
     }
-    return []
-  }
-
-  const [loading, setLoading] = useState<boolean>(false)
-  const [links, setLinks] = useState<LinkItemProps[]>(getSessionStorageLinks())
+  }, [])
 
   async function handleAddLink(link: string) {
     if(loading) return
