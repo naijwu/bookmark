@@ -28,13 +28,19 @@ export default function Home() {
     const response = await fetch(`http://api.linkpreview.net/?key=${API_KEY_TO_USE}&q=${encodeURI(link)}`);
     const linkPreview = await response.json();
 
+    if (!linkPreview?.title) {
+      setLoading(false)
+      return
+    }
+
     // update links
     const updatedLinks = JSON.parse(JSON.stringify(links))
     const domainRegex = /^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n]+)/im;
     updatedLinks.splice(0, 0, {
       favicon: linkPreview.image,
       title: linkPreview.title,
-      url: linkPreview.url.replace(domainRegex, '$1').slice(0, -1),
+      link: linkPreview.url.replace(domainRegex, '$1').slice(0, -1),
+      url: linkPreview.url,
       dateAdded: (new Date()).toString().substring(4, 15)
     })
     setLinks(updatedLinks)
@@ -46,11 +52,18 @@ export default function Home() {
     setLoading(false)
   }
 
+  function handleDelete(index: number) {
+    const updatedLinks = JSON.parse(JSON.stringify(links))
+    updatedLinks.splice(index, 1)
+    setLinks(updatedLinks)
+    window.sessionStorage.setItem('bookmarks', JSON.stringify(updatedLinks))
+  }
+
   return (
     <div className={styles.container}>
       <LinkField handleAddLink={handleAddLink} loading={loading} />
       <div className={styles.links}>
-        {links?.map((link, index) => <LinkItem key={index} {...link} />)}
+        {links?.map((link, index) => <LinkItem key={index} index={index} handleDelete={handleDelete} {...link} />)}
       </div>
     </div>
   )

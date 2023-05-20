@@ -9,9 +9,19 @@
     font-size: 0.95rem;
     cursor: pointer;
     user-select: none;
+    border: 2px solid transparent;
 }
 .item:hover {
     background-color: var(--color-light);
+}
+
+a.normalize {
+    text-decoration: none;
+    color: inherit;
+}
+
+.item.deleting {
+    border-color: red;
 }
 
 .left {
