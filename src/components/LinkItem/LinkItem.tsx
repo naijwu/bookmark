@@ -40,9 +40,19 @@ const LinkItem = ({
         return false
     }
 
+    function addHttps(url: string) {
+        // Check if the URL already starts with http:// or https://
+        if (!/^https?:\/\//i.test(url)) {
+          // Add https:// to the URL
+          url = 'https://' + url;
+        }
+        
+        return url;
+      }
+
     return (
         <OutsideAlerter onClickOutside={()=>setDeleting(false)}>
-            <a className={styles.normalize} href={`https://${url}`} target="_blank" rel="noreferrer noopener">
+            <a className={styles.normalize} href={addHttps(url)} target="_blank" rel="noreferrer noopener">
                 <div className={`${styles.item} ${deleting ? styles.deleting : ''}`} onContextMenu={handleRightClick}>
                     <div className={styles.left}>
                         <div className={styles.faviconContainer}>
