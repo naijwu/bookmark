@@ -17,8 +17,8 @@ const LinkField = ({
         if (e.key === 'Enter') {
             e.preventDefault();
             handleAddLink(input)
+            setInput('')
         }
-        setInput('')
     }
 
     return (
