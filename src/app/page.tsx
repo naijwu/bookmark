@@ -1,95 +1,76 @@
-import Image from 'next/image'
+'use client';
+
+import { useState } from 'react';
 import styles from './page.module.css'
+import LinkField from '@/components/LinkField/LinkField'
+import LinkItem, { LinkItemProps } from '@/components/LinkItem/LinkItem';
+
+const EXAMPLE_LINKS = [
+  {
+    favicon: '',
+    title: 'Diagram',
+    url: 'diagram.so',
+    dateAdded: '18 May',
+  },
+  {
+    favicon: '',
+    title: `Jae wu's blog`,
+    url: 'jaewuchun.com',
+    dateAdded: '18 May',
+  },
+  {
+    favicon: '',
+    title: `Mainstream on Twitter`,
+    url: 'twitter.com',
+    dateAdded: '18 May',
+  }
+]
+
+const API_KEY_TO_USE = process.env.NEXT_PUBLIC_LINK_API
 
 export default function Home() {
+
+  const getSessionStorageLinks = () => {
+    const bookmarks = window?.sessionStorage.getItem('bookmarks')
+    return bookmarks ? JSON.parse(bookmarks) : [] 
+  }
+
+  const [loading, setLoading] = useState<boolean>(false)
+  const [links, setLinks] = useState<LinkItemProps[]>(getSessionStorageLinks())
+
+  async function handleAddLink(link: string) {
+    if(loading) return
+    if(!link) return
+    setLoading(true)
+
+    // get data of link
+    const response = await fetch(`http://api.linkpreview.net/?key=${API_KEY_TO_USE}&q=${encodeURI(link)}`);
+    const linkPreview = await response.json();
+
+    // update links
+    const updatedLinks = JSON.parse(JSON.stringify(links))
+    const domainRegex = /^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n]+)/im;
+    updatedLinks.splice(0, 0, {
+      favicon: linkPreview.image,
+      title: linkPreview.title,
+      url: linkPreview.url.replace(domainRegex, '$1').slice(0, -1),
+      dateAdded: (new Date()).toString().substring(4, 15)
+    })
+    setLinks(updatedLinks)
+    
+    // save links data
+    window.sessionStorage.setItem('bookmarks', JSON.stringify(updatedLinks))
+
+    console.log(updatedLinks)
+    setLoading(false)
+  }
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
+    <div className={styles.container}>
+      <LinkField handleAddLink={handleAddLink} loading={loading} />
+      <div className={styles.links}>
+        {links?.map((link, index) => <LinkItem key={index} {...link} />)}
       </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    </div>
   )
 }
