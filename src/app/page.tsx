@@ -31,6 +31,7 @@ const API_KEY_TO_USE = process.env.NEXT_PUBLIC_LINK_API
 export default function Home() {
 
   const getSessionStorageLinks = () => {
+    if (typeof window == undefined) return []
     const bookmarks = window?.sessionStorage.getItem('bookmarks')
     return bookmarks ? JSON.parse(bookmarks) : [] 
   }
@@ -59,7 +60,9 @@ export default function Home() {
     setLinks(updatedLinks)
     
     // save links data
-    window.sessionStorage.setItem('bookmarks', JSON.stringify(updatedLinks))
+    if (typeof window != undefined) {
+      window.sessionStorage.setItem('bookmarks', JSON.stringify(updatedLinks))
+    }
 
     console.log(updatedLinks)
     setLoading(false)
