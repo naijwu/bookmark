@@ -25,8 +25,16 @@ export default function Home() {
     setLoading(true)
 
     // get data of link
-    const response = await fetch(`http://api.linkpreview.net/?key=${API_KEY_TO_USE}&q=${encodeURI(link)}`);
-    const linkPreview = await response.json();
+    let linkPreview: any = {}
+    
+    try {
+      const response = await fetch(`http://api.linkpreview.net/?key=${API_KEY_TO_USE}&q=${encodeURI(link)}`);
+      linkPreview = await response.json();
+    } catch (error) {
+      console.error(error)
+      setLoading(false)
+      return
+    }
 
     if (!linkPreview?.title) {
       setLoading(false)
